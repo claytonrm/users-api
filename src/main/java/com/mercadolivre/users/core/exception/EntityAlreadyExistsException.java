@@ -1,5 +1,8 @@
 package com.mercadolivre.users.core.exception;
 
+import lombok.Getter;
+
+@Getter
 public class EntityAlreadyExistsException extends IllegalStateException {
 
   private String code;

@@ -18,6 +18,10 @@ public class UserRegistrationDTO {
   private String name;
   @NotEmpty
   private String cpf;
+
+  @NotEmpty
+  private String email;
+
   @NotNull
   @JsonFormat(pattern = "dd/MM/yyyy")
   private LocalDate birthDate;
@@ -26,6 +30,7 @@ public class UserRegistrationDTO {
     return new User(
             this.name,
             this.cpf,
+            this.email,
             this.birthDate
     );
   }
