@@ -65,8 +65,7 @@ public class UserRegistrationRESTControllerTest {
   @Test
   @DisplayName("[POST] /users -> Should return a header location with resource just created")
   void shouldReturnAHeaderWithResourceJustCreated() throws Exception {
-    final String sampleUserRequest = new String(Files.readAllBytes(
-        userRegistrationSampleResource.getFile().toPath()));
+    final String sampleUserRequest = new String(Files.readAllBytes(userRegistrationSampleResource.getFile().toPath()));
     given(userRegistrationUseCase.create(any(User.class))).willReturn(UUID.randomUUID().toString());
 
     this.mockMvc
@@ -79,8 +78,7 @@ public class UserRegistrationRESTControllerTest {
   @Test
   @DisplayName("[POST] /users -> Should return 400 Bad Request when use case throws IllegalArgumentException")
   void shouldReturnBadRequestWhenServiceThrowsIllegalArgumentException() throws Exception {
-    final String sampleUserRequest = new String(Files.readAllBytes(
-        userRegistrationSampleResource.getFile().toPath()));
+    final String sampleUserRequest = new String(Files.readAllBytes(userRegistrationSampleResource.getFile().toPath()));
     given(userRegistrationUseCase.create(any())).willThrow(new AgeBelowException("AGE_BELOW_X", "Access allowed only to users aged 18 and above."));
 
     this.mockMvc
@@ -93,8 +91,7 @@ public class UserRegistrationRESTControllerTest {
   @Test
   @DisplayName("[POST] /users -> Should return 409 Conflict when use case throws EntityAlreadyExists")
   void shouldReturnConflictWhenUseCaseThrowsEntityAlreadyExistsException() throws Exception {
-    final String sampleUserRequest = new String(Files.readAllBytes(
-        userRegistrationSampleResource.getFile().toPath()));
+    final String sampleUserRequest = new String(Files.readAllBytes(userRegistrationSampleResource.getFile().toPath()));
     given(userRegistrationUseCase.create(any())).willThrow(new EntityAlreadyExistsException("USER_ALREADY_EXISTS", "User already exists."));
 
     this.mockMvc

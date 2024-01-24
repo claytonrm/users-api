@@ -40,7 +40,7 @@ public class UserRegistration {
   }
 
   private void validateCPF(final User user) {
-    if (!user.isValidCPF()) {
+    if (!user.getCpf().isValid()) {
       log.error("CPF is invalid.");
       throw new CPFInvalidException(
           Message.REGISTRATION_ERROR_CPF_INVALID.getCode(),
@@ -59,7 +59,7 @@ public class UserRegistration {
 
   private void validateIfAlreadyExists(final User user) {
     final UserFilter filter = UserFilter.builder()
-        .cpf(user.getCpf())
+        .cpf(user.getCpf().number())
         .email(user.getEmail())
         .operator(LogicalOperator.OR)
         .build();
