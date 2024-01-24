@@ -12,6 +12,9 @@ public class UserFilter {
   @Builder.Default
   private LogicalOperator operator = LogicalOperator.AND;
 
+  @Builder.Default
+  private SearchType type = SearchType.EQUALS;
+
   private String cpf;
   private String name;
   private String email;

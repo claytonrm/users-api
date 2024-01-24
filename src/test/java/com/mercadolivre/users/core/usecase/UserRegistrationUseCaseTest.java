@@ -15,7 +15,7 @@ import com.mercadolivre.users.core.entity.User;
 import com.mercadolivre.users.core.entity.UserFilter;
 import com.mercadolivre.users.core.exception.AgeBelowException;
 import com.mercadolivre.users.core.exception.CPFInvalidException;
-import com.mercadolivre.users.core.exception.EntityAlreadyExistsException;
+import com.mercadolivre.users.core.exception.AlreadyExistsException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -66,7 +66,7 @@ public class UserRegistrationUseCaseTest {
     given(accountRepository.findBy(any())).willReturn(List.of(existingUserSample));
 
     final User sameCPFUserSample = new User("Jean", new BrazilianCPF("183.271.643-09"), "jean@billy.com", LocalDate.of(2000, 01, 21));
-    assertThrows(EntityAlreadyExistsException.class, ()-> userRegistration.create(sameCPFUserSample));
+    assertThrows(AlreadyExistsException.class, ()-> userRegistration.create(sameCPFUserSample));
 
     verify(accountRepository).findBy(UserFilter.builder().operator(LogicalOperator.OR).email(sameCPFUserSample.getEmail()).cpf(sameCPFUserSample.getCpf().number()).build());
     verify(accountRepository, times(0)).create(any());
@@ -79,7 +79,7 @@ public class UserRegistrationUseCaseTest {
     given(accountRepository.findBy(any())).willReturn(List.of(existingUserSample));
 
     final User sameEmailUserSample = new User("Jean", new BrazilianCPF("28632641093"), "billy@jean.com", LocalDate.of(2000, 01, 21));
-    assertThrows(EntityAlreadyExistsException.class, ()-> userRegistration.create(sameEmailUserSample));
+    assertThrows(AlreadyExistsException.class, ()-> userRegistration.create(sameEmailUserSample));
 
     verify(accountRepository).findBy(UserFilter.builder().operator(LogicalOperator.OR).cpf(sameEmailUserSample.getCpf().number()).email(sameEmailUserSample.getEmail()).build());
     verify(accountRepository, times(0)).create(any());

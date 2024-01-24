@@ -15,4 +15,6 @@ public interface AccountRepository<T, U> {
 
   Optional<T> findById(final String id);
 
+  List<T> findAll();
+
 }

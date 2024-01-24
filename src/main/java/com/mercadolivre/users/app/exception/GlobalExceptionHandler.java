@@ -1,7 +1,7 @@
 package com.mercadolivre.users.app.exception;
 
 import com.mercadolivre.users.core.exception.AgeBelowException;
-import com.mercadolivre.users.core.exception.EntityAlreadyExistsException;
+import com.mercadolivre.users.core.exception.AlreadyExistsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +24,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.badRequest().body(errorDTO);
     }
 
-    @ExceptionHandler(EntityAlreadyExistsException.class)
+    @ExceptionHandler(AlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<APIErrorDTO> handleAgeBelowException(final EntityAlreadyExistsException e) {
+    public ResponseEntity<APIErrorDTO> handleAgeBelowException(final AlreadyExistsException e) {
         logger.error(e.getMessage(), e);
         final APIErrorDTO errorDTO = getErrorMessageFromException(e.getCode(), e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDTO);

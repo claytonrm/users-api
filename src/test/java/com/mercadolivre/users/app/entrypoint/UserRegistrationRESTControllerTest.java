@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mercadolivre.users.core.entity.User;
 import com.mercadolivre.users.core.exception.AgeBelowException;
-import com.mercadolivre.users.core.exception.EntityAlreadyExistsException;
+import com.mercadolivre.users.core.exception.AlreadyExistsException;
 import com.mercadolivre.users.core.usecase.UserRegistration;
 
 import java.nio.file.Files;
@@ -92,7 +92,7 @@ public class UserRegistrationRESTControllerTest {
   @DisplayName("[POST] /users -> Should return 409 Conflict when use case throws EntityAlreadyExists")
   void shouldReturnConflictWhenUseCaseThrowsEntityAlreadyExistsException() throws Exception {
     final String sampleUserRequest = new String(Files.readAllBytes(userRegistrationSampleResource.getFile().toPath()));
-    given(userRegistrationUseCase.create(any())).willThrow(new EntityAlreadyExistsException("USER_ALREADY_EXISTS", "User already exists."));
+    given(userRegistrationUseCase.create(any())).willThrow(new AlreadyExistsException("USER_ALREADY_EXISTS", "User already exists."));
 
     this.mockMvc
             .perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(sampleUserRequest))

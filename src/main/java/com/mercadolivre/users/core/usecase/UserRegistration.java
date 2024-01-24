@@ -7,7 +7,7 @@ import com.mercadolivre.users.core.entity.User;
 import com.mercadolivre.users.core.entity.UserFilter;
 import com.mercadolivre.users.core.exception.AgeBelowException;
 import com.mercadolivre.users.core.exception.CPFInvalidException;
-import com.mercadolivre.users.core.exception.EntityAlreadyExistsException;
+import com.mercadolivre.users.core.exception.AlreadyExistsException;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -66,7 +66,7 @@ public class UserRegistration {
 
     if (!CollectionUtils.isEmpty(this.accountRepository.findBy(filter))) {
       log.warn("User is already registered!");
-      throw new EntityAlreadyExistsException(
+      throw new AlreadyExistsException(
           Message.REGISTRATION_ERROR_USER_ALREADY_EXISTS.getCode(),
           Message.REGISTRATION_ERROR_USER_ALREADY_EXISTS.getMessage());
     }

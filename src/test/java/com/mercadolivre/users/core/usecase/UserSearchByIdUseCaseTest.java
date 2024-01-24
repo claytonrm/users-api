@@ -23,7 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("[UserSearchById] Unit Tests")
-public class UserSearchByIdTest {
+public class UserSearchByIdUseCaseTest {
 
   @InjectMocks
   private UserSearchById userSearchById;
