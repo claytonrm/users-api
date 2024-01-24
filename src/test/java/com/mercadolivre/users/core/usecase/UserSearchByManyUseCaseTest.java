@@ -32,8 +32,8 @@ public class UserSearchByManyUseCaseTest {
   @DisplayName("Should find all existing users")
   void shouldFindAllUsers() {
     final List<User> existingUsersSample = List.of(
-        new User(UUID.randomUUID().toString(), "Billy", new BrazilianCPF("86371844563"), "billy@jean.com", LocalDate.of(1990, 01, 21)),
-        new User(UUID.randomUUID().toString(), "Jean", new BrazilianCPF("43874170993"), "jean@jean.com", LocalDate.of(1991, 02, 10))
+        new User(UUID.randomUUID().toString(), "Billy", new BrazilianCPF("86371844563"), "billy@jean.com", LocalDate.of(1990, 1, 21)),
+        new User(UUID.randomUUID().toString(), "Jean", new BrazilianCPF("43874170993"), "jean@jean.com", LocalDate.of(1991, 2, 10))
     );
     given(accountRepository.findAll()).willReturn(existingUsersSample);
 
@@ -56,14 +56,14 @@ public class UserSearchByManyUseCaseTest {
   @DisplayName("Should find by name")
   void shouldFindUsersByName() {
     final List<User> existingUsersSample = List.of(
-        new User(UUID.randomUUID().toString(), "Billy Joe", new BrazilianCPF("86371844563"), "billy@joe.com", LocalDate.of(1990, 01, 21)),
-        new User(UUID.randomUUID().toString(), "Jean Grey", new BrazilianCPF("43874170993"), "jean@grey.com", LocalDate.of(1991, 02, 10)),
-        new User(UUID.randomUUID().toString(), "Jean Grey", new BrazilianCPF("09983892936"), "jean@jean.com", LocalDate.of(1991, 02, 10))
+        new User(UUID.randomUUID().toString(), "Billy Joe", new BrazilianCPF("86371844563"), "billy@joe.com", LocalDate.of(1990, 1, 21)),
+        new User(UUID.randomUUID().toString(), "Jean Grey", new BrazilianCPF("43874170993"), "jean@grey.com", LocalDate.of(1991, 2, 10)),
+        new User(UUID.randomUUID().toString(), "Jean Grey", new BrazilianCPF("09983892936"), "jean@jean.com", LocalDate.of(1991, 2, 10))
     );
     final List<User> mockedUsersFromRepository = List.of(existingUsersSample.get(1), existingUsersSample.get(2));
     given(accountRepository.findBy(UserFilter.builder().name("jean grey").build())).willReturn(mockedUsersFromRepository);
 
-    final List<User> actualUsers = userSearchByMany.findBy(UserFilter.builder().name("jean grey").build());
+    final List<User> actualUsers = userSearchByMany.findByName("jean grey");
 
     assertThat(actualUsers).containsExactlyInAnyOrderElementsOf(mockedUsersFromRepository);
   }
