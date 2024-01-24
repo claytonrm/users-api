@@ -27,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("[UserRegistration] Unit Tests")
 public class UserRegistrationUseCaseTest {
 
   @InjectMocks
