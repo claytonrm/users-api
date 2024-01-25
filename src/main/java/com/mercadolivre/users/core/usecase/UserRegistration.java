@@ -8,7 +8,9 @@ import com.mercadolivre.users.core.entity.UserFilter;
 import com.mercadolivre.users.core.exception.AgeBelowException;
 import com.mercadolivre.users.core.exception.CPFInvalidException;
 import com.mercadolivre.users.core.exception.AlreadyExistsException;
+import com.mercadolivre.users.core.exception.NotFoundException;
 import java.util.Optional;
+import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -27,12 +29,23 @@ public class UserRegistration {
 
   public String create(final User user) {
     return Optional.of(user)
-        .map(this::validate)
+        .map(this::fullValidation)
         .map(this.accountRepository::create)
         .orElseThrow(() -> new IllegalStateException("Could not create user!"));
   }
 
-  private User validate(final User user) {
+  public void update(final User userWithNewChanges) {
+    this.accountRepository.findById(userWithNewChanges.getId())
+        .orElseThrow(getUserNotFoundExceptionSupplier(userWithNewChanges.getId()));
+
+    validateAge(userWithNewChanges);
+    validateCPF(userWithNewChanges);
+
+    this.accountRepository.update(userWithNewChanges);
+    log.info("User has been updated");
+  }
+
+  private User fullValidation(final User user) {
     validateAge(user);
     validateCPF(user);
     validateIfAlreadyExists(user);
@@ -71,4 +84,14 @@ public class UserRegistration {
           Message.REGISTRATION_ERROR_USER_ALREADY_EXISTS.getMessage());
     }
   }
+
+  private Supplier<NotFoundException> getUserNotFoundExceptionSupplier(final String id) {
+    return () -> {
+      log.error("User {} not found!", id);
+      return new NotFoundException(
+          Message.ERROR_TEMPLATE_USER_NOT_FOUND.getCode(),
+          String.format(Message.ERROR_TEMPLATE_USER_NOT_FOUND.getMessage(), id));
+    };
+  }
+
 }

@@ -1,19 +1,34 @@
 package com.mercadolivre.users.core.usecase;
 
 import com.mercadolivre.users.core.dataprovider.AccountRepository;
+import com.mercadolivre.users.core.entity.Message;
 import com.mercadolivre.users.core.entity.User;
 import com.mercadolivre.users.core.entity.UserFilter;
+import com.mercadolivre.users.core.exception.NotFoundException;
 import java.util.List;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
-public class UserSearchByMany {
+public class UserSearching {
 
   private final AccountRepository<User, UserFilter> accountRepository;
 
-  public UserSearchByMany(final AccountRepository accountRepository) {
+  public UserSearching(final AccountRepository<User, UserFilter> accountRepository) {
     this.accountRepository = accountRepository;
+  }
+
+  public User findById(final String id) {
+    return this.accountRepository
+        .findById(id)
+        .orElseThrow(() -> {
+          log.error("User {} not found!", id);
+          return new NotFoundException(
+              Message.ERROR_TEMPLATE_USER_NOT_FOUND.getCode(),
+              String.format(Message.ERROR_TEMPLATE_USER_NOT_FOUND.getMessage(), id));
+        });
   }
 
   public List<User> findAll() {

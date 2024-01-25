@@ -1,0 +1,4 @@
+[
+  {"op":"replace","path":"/cpf","value":"892.435.194-09"},
+  {"op":"replace","path":"/birthDate","value":"25/12/1991"}
+]

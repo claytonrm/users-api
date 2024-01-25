@@ -5,8 +5,10 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 @EqualsAndHashCode
 public class User {
 
@@ -16,6 +18,7 @@ public class User {
     private final String email;
     private final LocalDate birthDate;
     private final LocalDateTime createdAt;
+    private final LocalDateTime updatedAt;
 
     public User(final String name, final BrazilianCPF cpf, final String email, final LocalDate birthDate) {
         this.name = name;
@@ -23,6 +26,7 @@ public class User {
         this.email = email;
         this.birthDate = birthDate;
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = null;
     }
 
     public User(final String id, final String name, final BrazilianCPF cpf, final String email, final LocalDate birthDate) {
@@ -32,6 +36,17 @@ public class User {
         this.email = email;
         this.birthDate = birthDate;
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = null;
+    }
+
+    public User(final String id, final String name, final BrazilianCPF cpf, final String email, final LocalDate birthDate, final LocalDateTime createdAt, final LocalDateTime updatedAt) {
+        this.id = id;
+        this.name = name;
+        this.cpf = cpf;
+        this.email = email;
+        this.birthDate = birthDate;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public boolean isValidAge(final int allowedMinimalAge) {

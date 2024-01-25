@@ -32,6 +32,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDTO);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<APIErrorDTO> handleAgeBelowException(final IllegalArgumentException e) {
+        logger.error(e.getMessage(), e);
+        final APIErrorDTO errorDTO = getErrorMessageFromException("INVALID_FIELDS", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
+    }
+
     private APIErrorDTO getErrorMessageFromException(final String code, final String message) {
         return new APIErrorDTO(code, Map.of("en", message));
     }
