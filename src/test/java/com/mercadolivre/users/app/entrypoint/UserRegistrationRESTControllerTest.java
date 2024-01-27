@@ -2,20 +2,24 @@ package com.mercadolivre.users.app.entrypoint;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mercadolivre.users.app.dto.UserRegistrationDTO;
 import com.mercadolivre.users.core.entity.BrazilianCPF;
+import com.mercadolivre.users.core.entity.Message;
 import com.mercadolivre.users.core.entity.User;
 import com.mercadolivre.users.core.exception.AgeBelowException;
 import com.mercadolivre.users.core.exception.AlreadyExistsException;
-import com.mercadolivre.users.core.usecase.UserRegistration;
-import com.mercadolivre.users.core.usecase.UserSearching;
+import com.mercadolivre.users.core.exception.NotFoundException;
+import com.mercadolivre.users.core.usecase.AccountRegistration;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -33,16 +37,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest
 @DisplayName("[UserRegistrationRESTController] Unit Test")
-public class UserRegistrationRESTControllerTest {
+class UserRegistrationRESTControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
 
   @MockBean
-  private UserRegistration userRegistrationUseCase;
-
-  @MockBean
-  private UserSearching userSearching;
+  private AccountRegistration<User> userRegistration;
 
   @Value("classpath:samples/user-registration.json")
   private Resource userRegistrationSampleResource;
@@ -63,7 +64,7 @@ public class UserRegistrationRESTControllerTest {
         .perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(sampleUserRequest))
         .andExpect(status().isCreated());
 
-    verify(userRegistrationUseCase).create(userModelExpected.capture());
+    verify(userRegistration).create(userModelExpected.capture());
 
     final User actualUserModel = userModelExpected.getValue();
     final User expectedUserOnService = mapper.readValue(sampleUserRequest, UserRegistrationDTO.class).toUserModel();
@@ -76,7 +77,7 @@ public class UserRegistrationRESTControllerTest {
   @DisplayName("[POST] /users -> Should return a header location with resource just created")
   void shouldReturnAHeaderWithResourceJustCreated() throws Exception {
     final String sampleUserRequest = new String(Files.readAllBytes(userRegistrationSampleResource.getFile().toPath()));
-    given(userRegistrationUseCase.create(any(User.class))).willReturn(UUID.randomUUID().toString());
+    given(userRegistration.create(any(User.class))).willReturn(UUID.randomUUID().toString());
 
     this.mockMvc
         .perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(sampleUserRequest))
@@ -89,7 +90,7 @@ public class UserRegistrationRESTControllerTest {
   @DisplayName("[POST] /users -> Should return 400 Bad Request when use case throws IllegalArgumentException")
   void shouldReturnBadRequestWhenServiceThrowsIllegalArgumentException() throws Exception {
     final String sampleUserRequest = new String(Files.readAllBytes(userRegistrationSampleResource.getFile().toPath()));
-    given(userRegistrationUseCase.create(any())).willThrow(new AgeBelowException("AGE_BELOW_X", "Access allowed only to users aged 18 and above."));
+    given(userRegistration.create(any())).willThrow(new AgeBelowException("AGE_BELOW_X", "Access allowed only to users aged 18 and above."));
 
     this.mockMvc
             .perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(sampleUserRequest))
@@ -102,7 +103,7 @@ public class UserRegistrationRESTControllerTest {
   @DisplayName("[POST] /users -> Should return 409 Conflict when use case throws EntityAlreadyExists")
   void shouldReturnConflictWhenUseCaseThrowsEntityAlreadyExistsException() throws Exception {
     final String sampleUserRequest = new String(Files.readAllBytes(userRegistrationSampleResource.getFile().toPath()));
-    given(userRegistrationUseCase.create(any())).willThrow(new AlreadyExistsException("USER_ALREADY_EXISTS", "User already exists."));
+    given(userRegistration.create(any())).willThrow(new AlreadyExistsException("USER_ALREADY_EXISTS", "User already exists."));
 
     this.mockMvc
             .perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(sampleUserRequest))
@@ -117,8 +118,8 @@ public class UserRegistrationRESTControllerTest {
     final User mockedExistingUser = mapper.readValue(new String(Files.readAllBytes(userRegistrationSampleResource.getFile().toPath())), UserRegistrationDTO.class).toUserModel();
     final String userId = UUID.randomUUID().toString();
     ReflectionTestUtils.setField(mockedExistingUser, "id", userId);
-    given(userSearching.findById(any())).willReturn(mockedExistingUser);
-    doNothing().when(userRegistrationUseCase).update(any());
+    given(userRegistration.findById(any())).willReturn(mockedExistingUser);
+    doNothing().when(userRegistration).update(any());
     final String sampleUserPatch = new String(Files.readAllBytes(userRegistrationPatchSampleResource.getFile().toPath()));
     final ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
 
@@ -126,7 +127,8 @@ public class UserRegistrationRESTControllerTest {
             .perform(patch("/users/{id}", userId).contentType("application/json-patch+json").content(sampleUserPatch))
             .andExpect(status().isNoContent());
 
-    verify(userRegistrationUseCase).update(userArgumentCaptor.capture());
+    verify(userRegistration, times(1)).findById(userId);
+    verify(userRegistration).update(userArgumentCaptor.capture());
 
     final User expectedChanges =
         new User(
@@ -141,5 +143,22 @@ public class UserRegistrationRESTControllerTest {
 
     assertThat(userArgumentCaptor.getValue()).isEqualTo(expectedChanges);
   }
+
+  @Test
+  @DisplayName("[PATCH] /users/{id} -> Should return 404 NOT_FOUND when trying to update")
+  void shouldReturnNotFoundWhenUpdateAMissingUser() throws Exception {
+    final String sampleUserPatch = new String(Files.readAllBytes(userRegistrationPatchSampleResource.getFile().toPath()));
+    given(userRegistration.findById(anyString())).willThrow(new NotFoundException(
+        Message.ERROR_TEMPLATE_USER_NOT_FOUND.getCode(),
+        String.format(Message.ERROR_TEMPLATE_USER_NOT_FOUND.getMessage(), "randomId"))
+    );
+
+    this.mockMvc
+        .perform(patch("/users/{id}", UUID.randomUUID().toString()).contentType("application/json-patch+json").content(sampleUserPatch))
+        .andExpect(status().isNotFound());
+
+    verify(userRegistration, times(0)).update(any());
+  }
+
 
 }

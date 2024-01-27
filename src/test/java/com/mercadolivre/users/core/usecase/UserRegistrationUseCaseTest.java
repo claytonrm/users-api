@@ -38,6 +38,9 @@ public class UserRegistrationUseCaseTest {
   @Mock
   private AccountRepository<User, UserFilter> accountRepository;
 
+  @Mock
+  private UserSearching userSearching;
+
   @Test
   @DisplayName("Should create a simple user calling Account Management as a Data Provider")
   void shouldCreateANewSimpleUserCallingAccountManagementDataProvider() {
@@ -101,12 +104,12 @@ public class UserRegistrationUseCaseTest {
   @DisplayName("Should update user calling Account Management as a Data Provider")
   void shouldUpdateUserCallingAccountManagementDataProvider() {
     final User existingUserSample = new User(UUID.randomUUID().toString(),"Billy", new BrazilianCPF("86371844563"), "billy@jean.com", LocalDate.of(2000, 1, 21));
-    given(accountRepository.findById(any())).willReturn(Optional.of(existingUserSample));
     final User userToUpdate = new User(existingUserSample.getId(), "Joe", new BrazilianCPF("86371844563"), "billy@jean.com", LocalDate.of(2000, 1, 21));
     final ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
 
     userRegistration.update(userToUpdate);
 
+    verifyNoInteractions(userSearching);
     verify(accountRepository).update(userArgumentCaptor.capture());
     assertThat(userToUpdate).isEqualTo(userArgumentCaptor.getValue());
   }
@@ -115,7 +118,6 @@ public class UserRegistrationUseCaseTest {
   @DisplayName("Should throw an CPFInvalidException when update to an invalid CPF")
   void shouldThrowCPFInvalidExceptionWhenUpdateToAnInvalidCPF() {
     final User existingUserSample = new User(UUID.randomUUID().toString(),"Billy", new BrazilianCPF("86371844563"), "billy@jean.com", LocalDate.of(2000, 1, 21));
-    given(accountRepository.findById(any())).willReturn(Optional.of(existingUserSample));
     final User userToUpdate = new User(existingUserSample.getId(), "Joe", new BrazilianCPF("12345"), "billy@jean.com", LocalDate.of(2000, 1, 21));
 
     assertThrows(CPFInvalidException.class, () -> userRegistration.update(userToUpdate));
@@ -127,7 +129,6 @@ public class UserRegistrationUseCaseTest {
   @DisplayName("Should throw an AgeBelowException when update to an age below 18")
   void shouldThrowAnAgeBelowExceptionWhenUpdateUserAgeToUnder18() {
     final User existingUserSample = new User(UUID.randomUUID().toString(),"Billy", new BrazilianCPF("86371844563"), "billy@jean.com", LocalDate.of(2000, 1, 21));
-    given(accountRepository.findById(any())).willReturn(Optional.of(existingUserSample));
     final User userToUpdate = new User(existingUserSample.getId(), "Joe", new BrazilianCPF("86371844563"), "billy@jean.com", LocalDate.of(2015, 1, 21));
 
     assertThrows(AgeBelowException.class, () -> userRegistration.update(userToUpdate));

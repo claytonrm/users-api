@@ -6,24 +6,24 @@ import com.mercadolivre.users.core.entity.Message;
 import com.mercadolivre.users.core.entity.User;
 import com.mercadolivre.users.core.entity.UserFilter;
 import com.mercadolivre.users.core.exception.AgeBelowException;
-import com.mercadolivre.users.core.exception.CPFInvalidException;
 import com.mercadolivre.users.core.exception.AlreadyExistsException;
-import com.mercadolivre.users.core.exception.NotFoundException;
+import com.mercadolivre.users.core.exception.CPFInvalidException;
 import java.util.Optional;
-import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 @Slf4j
 @Service
-public class UserRegistration {
+class UserRegistration implements AccountRegistration<User> {
 
   private static int ALLOWED_MINIMAL_AGE = 18;
 
+  private final AccountSearchEngine<User, UserFilter> userSearching;
   private final AccountRepository<User, UserFilter> accountRepository;
 
-  public UserRegistration(final AccountRepository accountRepository) {
+  public UserRegistration(final UserSearching userSearching, final AccountRepository accountRepository) {
+    this.userSearching = userSearching;
     this.accountRepository = accountRepository;
   }
 
@@ -35,14 +35,16 @@ public class UserRegistration {
   }
 
   public void update(final User userWithNewChanges) {
-    this.accountRepository.findById(userWithNewChanges.getId())
-        .orElseThrow(getUserNotFoundExceptionSupplier(userWithNewChanges.getId()));
-
     validateAge(userWithNewChanges);
     validateCPF(userWithNewChanges);
 
     this.accountRepository.update(userWithNewChanges);
     log.info("User has been updated");
+  }
+
+  @Override
+  public User findById(final String id) {
+    return this.userSearching.findById(id);
   }
 
   private User fullValidation(final User user) {
@@ -83,15 +85,6 @@ public class UserRegistration {
           Message.REGISTRATION_ERROR_USER_ALREADY_EXISTS.getCode(),
           Message.REGISTRATION_ERROR_USER_ALREADY_EXISTS.getMessage());
     }
-  }
-
-  private Supplier<NotFoundException> getUserNotFoundExceptionSupplier(final String id) {
-    return () -> {
-      log.error("User {} not found!", id);
-      return new NotFoundException(
-          Message.ERROR_TEMPLATE_USER_NOT_FOUND.getCode(),
-          String.format(Message.ERROR_TEMPLATE_USER_NOT_FOUND.getMessage(), id));
-    };
   }
 
 }

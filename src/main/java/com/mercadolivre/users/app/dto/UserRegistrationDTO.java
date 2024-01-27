@@ -1,4 +1,4 @@
-package com.mercadolivre.users.app.entrypoint;
+package com.mercadolivre.users.app.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mercadolivre.users.core.entity.BrazilianCPF;
