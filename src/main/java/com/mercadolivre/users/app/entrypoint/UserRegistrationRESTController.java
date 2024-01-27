@@ -12,7 +12,6 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,8 +29,7 @@ public class UserRegistrationRESTController {
   private final AccountRegistration<User> userRegistration;
   private final ObjectMapper mapper;
 
-  @Autowired
-  public UserRegistrationRESTController(final AccountRegistration userRegistration, final ObjectMapper mapper) {
+  public UserRegistrationRESTController(final AccountRegistration<User> userRegistration, final ObjectMapper mapper) {
     this.userRegistration = userRegistration;
     this.mapper = mapper;
   }

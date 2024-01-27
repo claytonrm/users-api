@@ -16,10 +16,12 @@ import com.mercadolivre.users.app.dto.UserRegistrationDTO;
 import com.mercadolivre.users.core.entity.BrazilianCPF;
 import com.mercadolivre.users.core.entity.Message;
 import com.mercadolivre.users.core.entity.User;
+import com.mercadolivre.users.core.entity.UserFilter;
 import com.mercadolivre.users.core.exception.AgeBelowException;
 import com.mercadolivre.users.core.exception.AlreadyExistsException;
 import com.mercadolivre.users.core.exception.NotFoundException;
 import com.mercadolivre.users.core.usecase.AccountRegistration;
+import com.mercadolivre.users.core.usecase.AccountSearchEngine;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -44,6 +46,9 @@ class UserRegistrationRESTControllerTest {
 
   @MockBean
   private AccountRegistration<User> userRegistration;
+
+  @MockBean
+  private AccountSearchEngine<User, UserFilter> accountSearchEngine;
 
   @Value("classpath:samples/user-registration.json")
   private Resource userRegistrationSampleResource;

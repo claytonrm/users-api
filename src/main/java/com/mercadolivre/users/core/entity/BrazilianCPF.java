@@ -1,5 +1,6 @@
 package com.mercadolivre.users.core.entity;
 
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 public record BrazilianCPF(String number) {
@@ -21,6 +22,13 @@ public record BrazilianCPF(String number) {
 
   public String getRaw() {
     return this.number.replaceAll("\\D", "");
+  }
+
+  public String getFormatted() {
+    final String raw = getRaw();
+    return Pattern.compile("(\\d{3})(\\d{3})(\\d{3})(\\d{2})")
+        .matcher(raw)
+        .replaceAll("$1.$2.$3-$4");
   }
 
   private boolean isValidLength(final String cleanedCPF) {
