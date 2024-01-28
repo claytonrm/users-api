@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mercadolivre.users.app.dto.UserRegistrationDTO;
+import com.mercadolivre.users.app.entrypoint.dto.UserRegistrationDTO;
 import com.mercadolivre.users.core.entity.BrazilianCPF;
 import com.mercadolivre.users.core.entity.Message;
 import com.mercadolivre.users.core.entity.User;
@@ -72,7 +72,7 @@ class UserRegistrationRESTControllerTest {
     verify(userRegistration).create(userModelExpected.capture());
 
     final User actualUserModel = userModelExpected.getValue();
-    final User expectedUserOnService = mapper.readValue(sampleUserRequest, UserRegistrationDTO.class).toUserModel();
+    final User expectedUserOnService = mapper.readValue(sampleUserRequest, UserRegistrationDTO.class).toUserEntity();
     ReflectionTestUtils.setField(expectedUserOnService, "createdAt", actualUserModel.getCreatedAt());
 
     assertThat(actualUserModel).isEqualTo(expectedUserOnService);
@@ -120,7 +120,7 @@ class UserRegistrationRESTControllerTest {
   @Test
   @DisplayName("[PATCH] /users/{id} -> Should update CPF and Birthdate")
   void shouldUpdateCPFAndBirthdate() throws Exception {
-    final User mockedExistingUser = mapper.readValue(new String(Files.readAllBytes(userRegistrationSampleResource.getFile().toPath())), UserRegistrationDTO.class).toUserModel();
+    final User mockedExistingUser = mapper.readValue(new String(Files.readAllBytes(userRegistrationSampleResource.getFile().toPath())), UserRegistrationDTO.class).toUserEntity();
     final String userId = UUID.randomUUID().toString();
     ReflectionTestUtils.setField(mockedExistingUser, "id", userId);
     given(userRegistration.findById(any())).willReturn(mockedExistingUser);

@@ -36,6 +36,11 @@ public class UserFilter {
     initFields(newInstance, filter);
   }
 
+  public boolean isSearchableFields(final String filter) {
+    final Set<String> nonSearchableFields = Set.of("operator", "type", "normalize");
+    return !nonSearchableFields.contains(filter);
+  }
+
   private void initFields(final UserFilter newInstance, final Map<String, String> filter) {
     filter.entrySet().stream()
         .filter(this::isSearchableFields)
@@ -47,8 +52,7 @@ public class UserFilter {
   }
 
   private boolean isSearchableFields(final Entry<String, String> filter) {
-    final Set<String> nonSearchableFields = Set.of("operator", "type", "normalize");
-    return !nonSearchableFields.contains(filter.getKey());
+    return isSearchableFields(filter.getKey());
   }
 
   private void setValueOnField(final UserFilter newInstance, final Field targetField, final String value) {

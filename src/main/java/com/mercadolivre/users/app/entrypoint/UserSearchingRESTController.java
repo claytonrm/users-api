@@ -1,6 +1,6 @@
 package com.mercadolivre.users.app.entrypoint;
 
-import com.mercadolivre.users.app.dto.UserResponseDTO;
+import com.mercadolivre.users.app.entrypoint.dto.UserResponseDTO;
 import com.mercadolivre.users.core.entity.User;
 import com.mercadolivre.users.core.entity.UserFilter;
 import com.mercadolivre.users.core.usecase.AccountSearchEngine;

@@ -1,4 +1,4 @@
-package com.mercadolivre.users.app.dto;
+package com.mercadolivre.users.app.entrypoint.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mercadolivre.users.core.entity.BrazilianCPF;
@@ -35,7 +35,7 @@ public class UserRegistrationDTO {
     this.birthDate = user.getBirthDate();
   }
 
-  public User toUserModel() {
+  public User toUserEntity() {
     return new User(
       this.name,
       new BrazilianCPF(this.cpf),
@@ -44,7 +44,7 @@ public class UserRegistrationDTO {
     );
   }
 
-  public User toUserModel(final String id, final LocalDateTime createdAt, final LocalDateTime updatedAt) {
+  public User toUserEntity(final String id, final LocalDateTime createdAt, final LocalDateTime updatedAt) {
     return new User(
       id,
       this.name,

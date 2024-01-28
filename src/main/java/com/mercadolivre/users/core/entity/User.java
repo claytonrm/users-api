@@ -3,12 +3,13 @@ package com.mercadolivre.users.core.entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
-import java.util.regex.Pattern;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 @Getter
+@Setter
 @ToString
 @EqualsAndHashCode
 public class User {

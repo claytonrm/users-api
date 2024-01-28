@@ -22,7 +22,7 @@ class UserRegistration implements AccountRegistration<User> {
   private final AccountSearchEngine<User, UserFilter> userSearching;
   private final AccountRepository<User, UserFilter> accountRepository;
 
-  public UserRegistration(final UserSearching userSearching, final AccountRepository accountRepository) {
+  public UserRegistration(final AccountSearchEngine<User, UserFilter> userSearching, final AccountRepository<User, UserFilter> accountRepository) {
     this.userSearching = userSearching;
     this.accountRepository = accountRepository;
   }

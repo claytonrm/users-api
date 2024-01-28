@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
-import com.mercadolivre.users.app.dto.UserRegistrationDTO;
+import com.mercadolivre.users.app.entrypoint.dto.UserRegistrationDTO;
 import com.mercadolivre.users.core.entity.User;
 import com.mercadolivre.users.core.usecase.AccountRegistration;
 import jakarta.validation.Valid;
@@ -36,7 +36,7 @@ public class UserRegistrationRESTController {
 
   @PostMapping
   public ResponseEntity<Void> create(@RequestBody @Valid final UserRegistrationDTO user) {
-    final String id = this.userRegistration.create(user.toUserModel());
+    final String id = this.userRegistration.create(user.toUserEntity());
 
     final URI location = ServletUriComponentsBuilder
         .fromCurrentRequest()
@@ -52,7 +52,7 @@ public class UserRegistrationRESTController {
     final User existingUser = this.userRegistration.findById(id);
     final UserRegistrationDTO userChanges = applyPatch(patch, new UserRegistrationDTO(existingUser));
 
-    this.userRegistration.update(userChanges.toUserModel(existingUser.getId(), existingUser.getCreatedAt(), LocalDateTime.now()));
+    this.userRegistration.update(userChanges.toUserEntity(existingUser.getId(), existingUser.getCreatedAt(), LocalDateTime.now()));
 
     return ResponseEntity.noContent().build();
   }

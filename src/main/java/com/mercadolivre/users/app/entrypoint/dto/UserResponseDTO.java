@@ -1,4 +1,4 @@
-package com.mercadolivre.users.app.dto;
+package com.mercadolivre.users.app.entrypoint.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
