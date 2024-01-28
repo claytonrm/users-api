@@ -6,20 +6,19 @@ import com.mercadolivre.users.core.entity.User;
 import com.mercadolivre.users.core.entity.UserFilter;
 import com.mercadolivre.users.core.exception.NotFoundException;
 import java.util.List;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 class UserSearching implements AccountSearchEngine<User, UserFilter> {
-
   private final AccountRepository<User, UserFilter> accountRepository;
 
   public UserSearching(final AccountRepository<User, UserFilter> accountRepository) {
     this.accountRepository = accountRepository;
   }
 
+  @Override
   public User findById(final String id) {
     return this.accountRepository
         .findById(id)
@@ -31,17 +30,9 @@ class UserSearching implements AccountSearchEngine<User, UserFilter> {
         });
   }
 
-  public List<User> findAll() {
-    return this.accountRepository.findAll();
+  @Override
+  public List<User> searchBy(final UserFilter userFilter) {
+    return this.accountRepository.find(userFilter);
   }
 
-  public List<User> findByName(final String name) {
-    final String nonNullName = Optional.ofNullable(name).orElse("");
-    final UserFilter userFilter = UserFilter.builder().name(nonNullName.strip().toLowerCase()).build();
-    return findBy(userFilter);
-  }
-
-  private List<User> findBy(final UserFilter filter) {
-    return this.accountRepository.findBy(filter);
-  }
 }

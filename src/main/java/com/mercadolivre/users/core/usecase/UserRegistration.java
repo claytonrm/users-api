@@ -79,7 +79,7 @@ class UserRegistration implements AccountRegistration<User> {
         .operator(LogicalOperator.OR)
         .build();
 
-    if (!CollectionUtils.isEmpty(this.accountRepository.findBy(filter))) {
+    if (!CollectionUtils.isEmpty(this.accountRepository.find(filter))) {
       log.warn("User is already registered!");
       throw new AlreadyExistsException(
           Message.REGISTRATION_ERROR_USER_ALREADY_EXISTS.getCode(),

@@ -18,7 +18,6 @@ import com.mercadolivre.users.core.exception.AlreadyExistsException;
 import com.mercadolivre.users.core.exception.CPFInvalidException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -68,12 +67,12 @@ public class UserRegistrationUseCaseTest {
   @DisplayName("Should ensure there is no user with same CPF when register a new one")
   void shouldEnsureThereIsNoUserWithSameCPFOnRegisterANewOne() {
     final User existingUserSample = new User("Billy", new BrazilianCPF("183.271.643-09"), "billy@jean.com", LocalDate.of(2000, 1, 21));
-    given(accountRepository.findBy(any())).willReturn(List.of(existingUserSample));
+    given(accountRepository.find(any())).willReturn(List.of(existingUserSample));
 
     final User sameCPFUserSample = new User("Jean", new BrazilianCPF("183.271.643-09"), "jean@billy.com", LocalDate.of(2000, 1, 21));
     assertThrows(AlreadyExistsException.class, ()-> userRegistration.create(sameCPFUserSample));
 
-    verify(accountRepository).findBy(UserFilter.builder().operator(LogicalOperator.OR).email(sameCPFUserSample.getEmail()).cpf(sameCPFUserSample.getCpf().number()).build());
+    verify(accountRepository).find(UserFilter.builder().operator(LogicalOperator.OR).email(sameCPFUserSample.getEmail()).cpf(sameCPFUserSample.getCpf().number()).build());
     verify(accountRepository, times(0)).create(any());
   }
 
@@ -81,12 +80,12 @@ public class UserRegistrationUseCaseTest {
   @DisplayName("Should ensure there is no user with same email when register a new one")
   void shouldEnsureThereIsNoUserWithSameEmailOnRegisterANewOne() {
     final User existingUserSample = new User("Billy", new BrazilianCPF("86371844563"), "billy@jean.com", LocalDate.of(2000, 1, 21));
-    given(accountRepository.findBy(any())).willReturn(List.of(existingUserSample));
+    given(accountRepository.find(any())).willReturn(List.of(existingUserSample));
 
     final User sameEmailUserSample = new User("Jean", new BrazilianCPF("28632641093"), "billy@jean.com", LocalDate.of(2000, 1, 21));
     assertThrows(AlreadyExistsException.class, ()-> userRegistration.create(sameEmailUserSample));
 
-    verify(accountRepository).findBy(UserFilter.builder().operator(LogicalOperator.OR).cpf(sameEmailUserSample.getCpf().number()).email(sameEmailUserSample.getEmail()).build());
+    verify(accountRepository).find(UserFilter.builder().operator(LogicalOperator.OR).cpf(sameEmailUserSample.getCpf().number()).email(sameEmailUserSample.getEmail()).build());
     verify(accountRepository, times(0)).create(any());
   }
 

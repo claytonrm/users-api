@@ -11,10 +11,8 @@ public interface AccountRepository<T, U> {
 
   void update(final T entity);
 
-  List<T> findBy(final U filter);
+  List<T> find(final U filter);
 
   Optional<T> findById(final String id);
-
-  List<T> findAll();
 
 }

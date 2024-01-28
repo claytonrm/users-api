@@ -34,7 +34,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<APIErrorDTO> handleAgeBelowException(final IllegalArgumentException e) {
+    public ResponseEntity<APIErrorDTO> handleIllegalArgumentException(final IllegalArgumentException e) {
         logger.error(e.getMessage(), e);
         final APIErrorDTO errorDTO = getErrorMessageFromException("INVALID_FIELDS", e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
@@ -46,6 +46,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         logger.error(e.getMessage(), e);
         final APIErrorDTO errorDTO = getErrorMessageFromException(e.getCode(), e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<APIErrorDTO> handleIllegalStateException(final IllegalStateException e) {
+        logger.error(e.getMessage(), e);
+        final APIErrorDTO errorDTO = getErrorMessageFromException("INVALID_APPLICATION_STATE", e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
     }
 
     private APIErrorDTO getErrorMessageFromException(final String code, final String message) {
