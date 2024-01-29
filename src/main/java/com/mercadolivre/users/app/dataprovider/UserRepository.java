@@ -26,12 +26,12 @@ public class UserRepository implements AccountRepository<User, UserFilter> {
   @Override
   public String create(final User entity) {
     final UserModel userModel = new UserModel(entity);
-    return this.mongoTemplate.save(userModel, COLLECTION_NAME).getId();
+    return this.mongoTemplate.insert(userModel, COLLECTION_NAME).getId();
   }
 
   @Override
   public void update(final User entity) {
-
+    this.mongoTemplate.save(new UserModel(entity), COLLECTION_NAME);
   }
 
   @Override
@@ -52,6 +52,12 @@ public class UserRepository implements AccountRepository<User, UserFilter> {
         .collect(Collectors.toList());
   }
 
+  @Override
+  public Optional<User> findById(final String id) {
+    return Optional.ofNullable(this.mongoTemplate.findById(id, UserModel.class, COLLECTION_NAME))
+        .map(UserModel::toEntity);
+  }
+
   private String getAsString(final UserFilter filter, final Field field) {
     try {
       field.setAccessible(true);
@@ -61,8 +67,4 @@ public class UserRepository implements AccountRepository<User, UserFilter> {
     }
   }
 
-  @Override
-  public Optional<User> findById(String id) {
-    return Optional.empty();
-  }
 }

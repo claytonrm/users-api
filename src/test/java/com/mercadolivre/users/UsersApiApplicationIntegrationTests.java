@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mercadolivre.users.app.dataprovider.model.UserModel;
-import com.mercadolivre.users.app.entrypoint.dto.UserResponseDTO;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -15,6 +14,8 @@ import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,12 +28,16 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.Resource;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureDataMongo
@@ -44,6 +49,8 @@ class UsersApiApplicationIntegrationTests {
 
 	@Autowired
 	private TestRestTemplate restTemplate;
+
+	private RestTemplate patchRestTemplate;
 
   @Value("classpath:samples/user-registration.json")
   private Resource userRegistrationSampleResource;
@@ -59,6 +66,9 @@ class UsersApiApplicationIntegrationTests {
 	@BeforeEach
 	void setupBeforeEach() {
 		this.userHost = String.format("http://localhost:%d/users", port);
+		final HttpClient httpClient = HttpClientBuilder.create().build();
+		this.patchRestTemplate = restTemplate.getRestTemplate();
+		this.patchRestTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClient));
 	}
 
 	@AfterEach
@@ -126,5 +136,30 @@ class UsersApiApplicationIntegrationTests {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		assertThat(responseBody).hasSize(3);
 	}
+
+	@Test
+	@DisplayName("[PATCH] Should update user (partial)")
+	void shouldUpdateUser() throws URISyntaxException {
+		/* Given */
+		this.mongoTemplate.save(new UserModel(null,"Tom","43951674202","eddie@something.com", LocalDate.of(2000, 12, 25), LocalDateTime.now(),null), "users");
+		this.mongoTemplate.save(new UserModel(null,"Morello","11671645987","eddie@something.com", LocalDate.of(2000, 12, 25), LocalDateTime.now(),null), "users");
+		this.mongoTemplate.save(new UserModel(null,"Josh","77883278835","eddie@something.com", LocalDate.of(2000, 12, 25), LocalDateTime.now(),null), "users");
+		final UserModel existingUser = this.mongoTemplate.find(new BasicQuery("{ name: 'Morello' }"), UserModel.class, "users").get(0);
+		final String patchURL = String.format("%s/%s", this.userHost, existingUser.getId());
+		final String changes = "[{\"op\":\"replace\",\"path\":\"/name\",\"value\":\"John\"}]";
+
+		final HttpHeaders headers = new HttpHeaders();
+		headers.add(HttpHeaders.CONTENT_TYPE, "application/json-patch+json");
+		final HttpEntity<String> request = new HttpEntity<>(changes, headers);
+
+		/* When */
+		final ResponseEntity response = this.patchRestTemplate.exchange(new URI(patchURL), HttpMethod.PATCH, request, ResponseEntity.class);
+
+		/* Then */
+		final String actualUpdatedName = this.mongoTemplate.findById(existingUser.getId(), UserModel.class, "users").getName();
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+		assertThat(actualUpdatedName).isEqualTo("John");
+	}
+
 
 }
