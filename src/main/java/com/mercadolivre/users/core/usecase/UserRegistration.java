@@ -37,7 +37,6 @@ class UserRegistration implements AccountRegistration<User> {
   public void update(final User userWithNewChanges) {
     validateAge(userWithNewChanges);
     validateCPF(userWithNewChanges);
-
     this.accountRepository.update(userWithNewChanges);
     log.info("User has been updated");
   }
@@ -74,7 +73,7 @@ class UserRegistration implements AccountRegistration<User> {
 
   private void validateIfAlreadyExists(final User user) {
     final UserFilter filter = UserFilter.builder()
-        .cpf(user.getCpf().number())
+        .cpf(user.getCpf().getRaw())
         .email(user.getEmail())
         .operator(LogicalOperator.OR)
         .build();

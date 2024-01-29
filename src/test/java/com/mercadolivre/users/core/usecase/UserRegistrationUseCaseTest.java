@@ -72,7 +72,7 @@ public class UserRegistrationUseCaseTest {
     final User sameCPFUserSample = new User("Jean", new BrazilianCPF("183.271.643-09"), "jean@billy.com", LocalDate.of(2000, 1, 21));
     assertThrows(AlreadyExistsException.class, ()-> userRegistration.create(sameCPFUserSample));
 
-    verify(accountRepository).find(UserFilter.builder().operator(LogicalOperator.OR).email(sameCPFUserSample.getEmail()).cpf(sameCPFUserSample.getCpf().number()).build());
+    verify(accountRepository).find(UserFilter.builder().operator(LogicalOperator.OR).email(sameCPFUserSample.getEmail()).cpf(sameCPFUserSample.getCpf().getRaw()).build());
     verify(accountRepository, times(0)).create(any());
   }
 

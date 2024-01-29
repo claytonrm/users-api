@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.util.ReflectionUtils;
 
 @Getter
@@ -16,6 +17,7 @@ import org.springframework.util.ReflectionUtils;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class UserFilter {
 
   @Builder.Default
@@ -32,8 +34,10 @@ public class UserFilter {
   private String email;
 
   public UserFilter(final Map<String, String> filter) {
-    final UserFilter newInstance = new UserFilter();
-    initFields(newInstance, filter);
+    this.operator = LogicalOperator.AND;
+    this.type = SearchType.EQUALS;
+    this.normalize = true;
+    initFields(this, filter);
   }
 
   public boolean isSearchableFields(final String filter) {
