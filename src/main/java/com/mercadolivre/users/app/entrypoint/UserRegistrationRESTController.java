@@ -43,14 +43,28 @@ public class UserRegistrationRESTController {
   }
 
   @Operation(summary = "Create a new user")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "201", description = "Found the user"),
-      @ApiResponse(responseCode = "400", description = "Invalid fields. Also it validates user's age, email and CPF"),
-      @ApiResponse(responseCode = "409", description = "User already exists (either CPF or email"),
-      @ApiResponse(responseCode = "500", description = "Server could not process for internal reasons")
-  })
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "201", description = "Found the user"),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid fields. Also it validates user's age, email and CPF"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "User already exists (either CPF or email"),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Server could not process for internal reasons")
+      })
   @PostMapping
-  public ResponseEntity<Void> create(@RequestBody @Valid final UserRegistrationDTO user) {
+  public ResponseEntity<Void> create(
+      @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(examples =
+      @ExampleObject(value ="{\n"
+      + "  \"name\": \"Josh\",\n"
+      + "  \"cpf\": \"130.877.567-92\",\n"
+      + "  \"email\": \"josh@something.com\",\n"
+      + "  \"birthDate\": \"20/01/1990\"\n"
+      + "}"))) @RequestBody @Valid final UserRegistrationDTO user) {
     final String id = this.userRegistration.create(user.toUserEntity());
 
     final URI location = ServletUriComponentsBuilder
