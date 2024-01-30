@@ -70,7 +70,7 @@ public class UserRepository implements AccountRepository<User, UserFilter> {
   }
 
   private String normalize(final UserFilter filter, final String rawValue) {
-    if (!filter.getNormalize()) {
+    if (filter.getNormalize()) {
       if (rawValue.matches(REGEX_PATTERN_CPF)) {
         return rawValue.strip().replaceAll("[.,-]", "");
       }
