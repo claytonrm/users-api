@@ -15,13 +15,13 @@ import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class UserRepository implements AccountRepository<User, UserFilter> {
+public class UserMongoRepository implements AccountRepository<User, UserFilter> {
 
   private static final String COLLECTION_NAME = "users";
   private static final String REGEX_PATTERN_CPF = "^(\\d+\\.*)+\\-*\\d*$";
   public final MongoTemplate mongoTemplate;
 
-  public UserRepository(final MongoTemplate mongoTemplate) {
+  public UserMongoRepository(final MongoTemplate mongoTemplate) {
     this.mongoTemplate = mongoTemplate;
   }
 
