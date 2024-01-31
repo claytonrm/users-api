@@ -18,6 +18,7 @@ import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,12 +38,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureDataMongo
-@DisplayName("[Integration Test] User (Narrow)")
+@DisplayName("[User flow] Integration Tests (Narrow)")
 class UsersApiApplicationIntegrationTests {
 
 	@LocalServerPort
@@ -199,24 +199,25 @@ class UsersApiApplicationIntegrationTests {
 		assertThat(actualUpdatedName).isEqualTo("John");
 	}
 
-//	@Test
-//	@DisplayName("[PATCH] Should return 409 CONFLICT when trying to update user (partial)")
-//	void shouldReturnConflictWhenTryingToUpdateCPFUser() throws URISyntaxException {
-//		/* Given */
-//		this.mongoTemplate.save(new UserModel(null,"Tom","43951674202","eddie@something.com", LocalDate.of(2000, 12, 25), LocalDateTime.now(),null), "users");
-//		this.mongoTemplate.save(new UserModel(null,"Morello","11671645987","eddie@something.com", LocalDate.of(2000, 12, 25), LocalDateTime.now(),null), "users");
-//		final UserModel existingUser = this.mongoTemplate.find(new BasicQuery("{ name: 'Morello' }"), UserModel.class, "users").get(0);
-//		final String patchURL = String.format("%s/%s", this.userHost, existingUser.getId());
-//		final String changes = "[{\"op\":\"replace\",\"path\":\"/cpf\",\"value\":\"439.516.742-02\"}]";
-//		final HttpHeaders headers = new HttpHeaders();
-//		headers.add(HttpHeaders.CONTENT_TYPE, "application/json-patch+json");
-//		final HttpEntity<String> request = new HttpEntity<>(changes, headers);
-//
-//		/* When */
-//		final ResponseEntity response = this.patchRestTemplate.exchange(new URI(patchURL), HttpMethod.PATCH, request, ResponseEntity.class);
-//
-//		/* Then */
-//		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-//	}
+	@Test
+	@Disabled("Since it's been used jsonPatch the instance is supposed to have the same instance. It is needed to check the id.")
+	@DisplayName("[PATCH] Should return 409 CONFLICT when trying to update user (partial)")
+	void shouldReturnConflictWhenTryingToUpdateCPFUser() throws URISyntaxException {
+		/* Given */
+		this.mongoTemplate.save(new UserModel(null,"Tom","43951674202","eddie@something.com", LocalDate.of(2000, 12, 25), LocalDateTime.now(),null), "users");
+		this.mongoTemplate.save(new UserModel(null,"Morello","11671645987","eddie@something.com", LocalDate.of(2000, 12, 25), LocalDateTime.now(),null), "users");
+		final UserModel existingUser = this.mongoTemplate.find(new BasicQuery("{ name: 'Morello' }"), UserModel.class, "users").get(0);
+		final String patchURL = String.format("%s/%s", this.userHost, existingUser.getId());
+		final String changes = "[{\"op\":\"replace\",\"path\":\"/cpf\",\"value\":\"439.516.742-02\"}]";
+		final HttpHeaders headers = new HttpHeaders();
+		headers.add(HttpHeaders.CONTENT_TYPE, "application/json-patch+json");
+		final HttpEntity<String> request = new HttpEntity<>(changes, headers);
+
+		/* When */
+		final ResponseEntity response = this.patchRestTemplate.exchange(new URI(patchURL), HttpMethod.PATCH, request, ResponseEntity.class);
+
+		/* Then */
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+	}
 
 }
